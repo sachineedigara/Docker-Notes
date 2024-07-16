@@ -1,0 +1,63 @@
+compose.yaml --> 
+
+version: '3.1'
+services:
+  wordpress:
+    depends_on:
+      - database
+    image: wordpress:latest
+    ports:
+      - 31000:80
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_NAME: wp_db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress123
+  database:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: wp_db
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress123
+    volumes:
+     - db-vol:/var/lib/mysql
+volumes:
+  db-vol:
+
+root@manager ~]# docker stack deploy mywordpress -c compose.yaml
+
+root@manager ~]# docker stack ls 
+NAME          SERVICES   ORCHESTRATOR
+mywordpress   2          Swarm
+
+root@manager ~]# docker stack services mywordpress
+ID             NAME                    MODE         REPLICAS   IMAGE              PORTS
+tmabkpg8f38p   mywordpress_database    replicated   1/1        mysql:5.7          
+n7cqknbe8hbf   mywordpress_wordpress   replicated   1/1        wordpress:latest   *:31000->80/tcp
+
+[root@manager ~]# docker stack ps mywordpress
+ID             NAME                      IMAGE              NODE      DESIRED STATE   CURRENT STATE           ERROR     PORTS
+ioo7ofqxncjl   mywordpress_database.1    mysql:5.7          manager   Running         Running 4 minutes ago             
+3ofebh0ozpn0   mywordpress_wordpress.1   wordpress:latest   worker    Running         Running 4 minutes ago   
+
+===========================================================================================================================================
+===========================================================================================================================================
+
+
+
+Docker networks -->
+
+[root@eduvm ~]# docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+f219cfe121df   bridge    bridge    local
+276deac0bff1   host      host      local
+3adf1773984a   none      null      local
+
+docker run -itd --name first --network=host -P httpd
+
+docker run -itd --name second --network=none -P httpd
+
+docker network create --driver bridge customnet
+
+docker run -itd --name third --network=customnet -P httpd

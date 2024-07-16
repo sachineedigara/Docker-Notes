@@ -1,0 +1,200 @@
+Environment Variables --> 
+
+docker run -itd --name dbcon -e MYSQL_ROOT_PASSWORD=Edureka@123! mysql:5.6
+===========================================================================
+
+DOCKER COMPOSE --> 
+
+Install docker compose
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+
+ 
+yaml file for wordpress 
+
+docker-compose.yaml 
+ 
+version: '3.1'
+services:
+  wordpress:
+    depends_on:
+      - database
+    image: wordpress:latest
+    ports:
+      - 31000:80
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_NAME: wp_db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress123
+  database:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: wp_db
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress123
+    volumes:
+     - db-vol:/var/lib/mysql
+volumes:
+  db-vol:
+  
+
+execute yaml file using command --> docker-compose up -d 
+Stop all services --> docker-compose down
+
+===========================================================================
+
+Docker Swarm Cluster Creation
+
+Swarm Cluster Creation --> create 4 machines with docker installed on all
+
+[root@manager1 ~]# docker system info | grep -i swarm
+ Swarm: inactive
+[root@manager1 ~]# docker swarm init 
+Swarm initialized: current node (4pn9iaale2n42lw5wl4wh28hi) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-4th16tnl1xl5h1tpd17sly1dq6bex8240vkmooaub9giqej7ss-bkrpsxy7t6ivg143cqexbj1e1 10.168.0.2:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+
+
+
+[root@manager1 ~]# docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+4pn9iaale2n42lw5wl4wh28hi *   manager1   Ready     Active         Leader           20.10.18
+
+
+[root@manager1 ~]# docker swarm join-token manager
+To add a manager to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-4th16tnl1xl5h1tpd17sly1dq6bex8240vkmooaub9giqej7ss-4yhiaej46g5jkv58fzoii6evw 10.168.0.2:2377
+
+
+[root@manager2 ~]# docker swarm join --token SWMTKN-1-4th16tnl1xl5h1tpd17sly1dq6bex8240vkmooaub9giqej7ss-4yhiaej46g5jkv58fzoii6evw 10.168.0.2:2377
+This node joined a swarm as a manager.
+
+
+
+[root@manager1 ~]# docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+4pn9iaale2n42lw5wl4wh28hi *   manager1   Ready     Active         Leader           20.10.18
+e2m2jm8ipfb56mg90m2it20xf     manager2   Ready     Active         Reachable        20.10.18
+
+
+
+root@manager1 ~]# docker swarm join-token worker 
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-4th16tnl1xl5h1tpd17sly1dq6bex8240vkmooaub9giqej7ss-bkrpsxy7t6ivg143cqexbj1e1 10.168.0.2:2377
+	
+
+[root@worker1 ~]# docker swarm join --token SWMTKN-1-4th16tnl1xl5h1tpd17sly1dq6bex8240vkmooaub9giqej7ss-bkrpsxy7t6ivg143cqexbj1e1 10.168.0.2:2377
+This node joined a swarm as a worker.
+
+
+[root@worker2 ~]# docker swarm join --token SWMTKN-1-4th16tnl1xl5h1tpd17sly1dq6bex8240vkmooaub9giqej7ss-bkrpsxy7t6ivg143cqexbj1e1 10.168.0.2:2377
+This node joined a swarm as a worker.
+
+
+[root@manager1 ~]# docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+4pn9iaale2n42lw5wl4wh28hi *   manager1   Ready     Active         Leader           20.10.18
+e2m2jm8ipfb56mg90m2it20xf     manager2   Ready     Active         Reachable        20.10.18
+70hy4vpq7vs7fhah88ch9z4wn     worker1    Ready     Active                          20.10.18
+aypoypcuzbtpoezcgzh7tgstc     worker2    Ready     Active                          20.10.18
+=================================================================================================
+
+Application Management in Swarm
+
+[root@manager1 ~]# docker service create --name first -p 31000:80 nginx 
+yw7xhor14t40zc3z48hvih74v
+overall progress: 1 out of 1 tasks 
+1/1: running   [==================================================>] 
+verify: Service converged 
+
+
+[root@manager1 ~]# docker service ls
+ID             NAME      MODE         REPLICAS   IMAGE          PORTS
+yw7xhor14t40   first     replicated   1/1        nginx:latest   *:31000->80/tcp
+
+
+[root@manager1 ~]# docker service ps first
+ID             NAME      IMAGE          NODE       DESIRED STATE   CURRENT STATE                ERROR     PORTS
+svss8rtg8ct1   first.1   nginx:latest   manager1   Running         Running about a minute ago             
+
+[root@manager1 ~]# docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+5cae3e8f4ac9   nginx:latest   "/docker-entrypoint.…"   2 minutes ago   Up 2 minutes   80/tcp    first.1.svss8rtg8ct1cjrboykt2nn3f
+
+[root@manager1 ~]# docker service rm  first 
+first
+
+
+[root@manager1 ~]# docker service create --name thirdsvc --replicas=2 nginx:1.17
+
+
+[root@manager1 ~]# docker service scale thirdsvc=4
+thirdsvc scaled to 4
+overall progress: 4 out of 4 tasks 
+1/4: running   [==================================================>] 
+2/4: running   [==================================================>] 
+3/4: running   [==================================================>] 
+4/4: running   [==================================================>] 
+verify: Service converged 
+
+
+[root@manager1 ~]# docker service ls
+ID             NAME       MODE         REPLICAS   IMAGE        PORTS
+aijleidvsur0   thirdsvc   replicated   4/4        nginx:1.17   
+
+
+[root@manager1 ~]# docker service ps thirdsvc
+ID             NAME         IMAGE        NODE       DESIRED STATE   CURRENT STATE            ERROR     PORTS
+o05gt3vzifpd   thirdsvc.1   nginx:1.17   manager2   Running         Running 2 minutes ago              
+s2q2e549715h   thirdsvc.2   nginx:1.17   manager1   Running         Running 2 minutes ago              
+6z3ebg0985rm   thirdsvc.3   nginx:1.17   worker2    Running         Running 19 seconds ago             
+kh4q4zyx992u   thirdsvc.4   nginx:1.17   worker1    Running         Running 19 seconds ago             
+
+
+
+[root@manager1 ~]# docker service update fourthsvc --image=nginx:1.18
+fourthsvc
+overall progress: 1 out of 1 tasks 
+1/1: running   [==================================================>] 
+verify: Service converged 
+
+
+[root@manager1 ~]# docker service rollback fourthsvc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

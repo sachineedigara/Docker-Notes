@@ -1,0 +1,32 @@
+Multistage builds -->
+
+Sample code file to create singlestage and multistage builds -->
+
+cat sample.go
+
+package main
+import "fmt"
+func main() {
+ fmt.Println("Welcome to Edureka!")
+}
+
+
+Single Stage dockerfile --> 
+FROM golang:1.12.4
+WORKDIR /sample
+COPY sample.go .
+RUN GOOS=linux go build -a -installsuffix cgo -o sample .
+CMD ["./sample"]
+
+
+
+Multistage dockerfile --> 
+
+FROM golang:1.12.4 AS compiler
+WORKDIR /sample
+COPY sample.go .
+RUN GOOS=linux go build -a -installsuffix cgo -o sample .
+FROM alpine:3.9.3
+WORKDIR /root
+COPY --from=compiler /sample/sample ./
+CMD ["./sample"]

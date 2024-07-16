@@ -1,0 +1,55 @@
+lsns --> command to list ns
+
+unshare --fork --pid --mount-proc bash --> command to create a ns 
+=========================================================================
+Output from outside of ns --> bigger terminal
+
+root      1349  1348  0 04:19 pts/0    00:00:00 -bash
+
+NS1 is created 
+
+4026532208 mnt        2  1539 root   unshare --fork --pid --mount-proc bash
+4026532209 pid        1  1540 root   bash
+
+NS2 is created 
+4026532210 mnt        2  1606 root   unshare --fork --pid --mount-proc bash
+4026532211 pid        1  1607 root   bash
+
+=========================================================================
+
+NS1 --> top right terminal
+root      1441  1440  0 04:20 pts/1    00:00:00 -bash
+root      1539  1441  0 04:42 pts/2    00:00:00 unshare --fork --pid --mount-proc --> terminated 
+root      1540  1539  0 04:42 pts/2    00:00:00 bash --> terminated 
+
+unshare --fork --pid --mount-proc bash
+
+[root@dockerhost ~]# ps -ef
+UID        PID  PPID  C STIME TTY          TIME CMD
+root          1    0  0 04:38 pts/1    00:00:00 bash  --> terminated 
+root        12     1  0 04:39 pts/1    00:00:00 ps -ef
+
+bash is running as process 1 in the ns1 created in top right terminal 
+but in the backend this bash which is running in the NS1 is catually running with the process id 1540
+
+
+=========================================================================
+
+NS2 --> bottom right terminal 
+
+root      1520  1519  0 04:37 pts/2    00:00:00 -bash
+root      1606  1520  0 04:42 pts/2    00:00:00 unshare --fork --pid --mount-proc
+root      1607  1606  0 04:42 pts/2    00:00:00 bash
+
+unshare --fork --pid --mount-proc bash
+
+[root@dockerhost ~]# ps -ef 
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 04:42 pts/2    00:00:00 bash
+root        12     1  0 04:42 pts/2    00:00:00 ps -ef
+
+bash is running as process 1 in the ns2 created in bottom right terminal 
+but in the backend this bash which is running in the NS2 is actually running with the process id 1607
+
+
+

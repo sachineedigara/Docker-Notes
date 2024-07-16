@@ -1,0 +1,137 @@
+---------------------------------------------------------------------
+dockerfile --> 
+
+# The Dockerfile defines the image's environment
+# Import Python runtime and set up working directory
+FROM python:3.7-slim
+WORKDIR /app
+ADD . /app
+
+# Install any necessary dependencies
+RUN pip install -r requirements.txt
+
+# Open port 80 for serving the webpage
+EXPOSE 80
+
+# Run app.py when the container launches
+CMD ["python","app.py"]
+---------------------------------------------------------------------
+app.py -->
+
+# The Docker image contains the following code
+from flask import Flask
+import os
+import socket
+
+app = Flask(__name__)
+
+@app.route("/")
+def showPinehead():
+    html = "<div style='text-align:center;margin:20px;'><h1>Greetings from Edu!</h1><h2>This is Version 2</h2><img src='https://storage.googleapis.com/la-gcp-labs-resources/essentials/Logo-Pinehead-NVY.png' width='40%' alt='Pinehead @ Linux Academy'></div>"
+    return html
+
+if __name__ == "__main__":
+  app.run(host='0.0.0.0', port=80)
+
+---------------------------------------------------------------------
+
+requirements.txt --> 
+
+# This file defines the image's dependencies
+flask>=0.12.3
+
+
+---------------------------------------------------------------------
+
+docker build -t jsachdev07/myflaskapp:v1 .
+docker login
+docker push jsachdev07/myflaskapp:v1
+
+---------------------------------------------------------------------
+
+CMD vs ENTRYPOINT
+
+
+C1 --> 
+
+docker run -itd --name c1 -p 30000:80 app_cmd:v1 --> I did not passed any command --> container started with default command --> python app.py 
+python app.py  --> process no. 1 
+
+[root@eduvm images]# docker exec -it c1 ps -ef
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 14:46 pts/0    00:00:00 python app.py
+root       334     0  0 14:50 pts/1    00:00:00 ps -ef
+
+
+C2 --> 
+
+ docker run -itd --name c2 -p 31000:80 app_cmd:v1 bash --> I passed a command (bash) --> container overwrite the default command with command that you passed 
+ 
+ bash --> process 1. --> application is not running
+ 
+ [root@eduvm images]# docker exec -it c2 ps -ef
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 14:46 pts/0    00:00:00 bash
+root       329     0  0 14:50 pts/1    00:00:00 ps -ef
+
+
+dockerfile --> Image build (app_cmd:v1)
+
+
+# The Dockerfile defines the image's environment
+# Import Python runtime and set up working directory
+FROM python:3.7-slim
+WORKDIR /app
+ADD . /app
+
+# Install any necessary dependencies
+RUN pip install -r requirements.txt
+
+# Open port 80 for serving the webpage
+EXPOSE 80
+
+# Run app.py when the container launches
+CMD ["python","app.py"]
+
+CMD --> specify in a dockerfile --> it can be overwritten by the cmd that you pass during container creation
+============================================================================================================================
+
+ENTRYPOINTS --> Image Build (app_ep:v1)
+
+FROM python:3.7-slim
+WORKDIR /app
+ADD . /app
+
+# Install any necessary dependencies
+RUN pip install -r requirements.txt
+
+# Open port 80 for serving the webpage
+EXPOSE 80
+
+# Run app.py when the container launches
+ENTRYPOINT ["python","app.py"]
+
+
+E1 --> 
+docker run -itd --name e1 -p 32000:80 app_ep:v1 --> no cmd passed --> it will use default EP or CMD whatever specfied in the dockerfile 
+
+root@d9344f98106e:/app# ps -ef
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 15:01 pts/0    00:00:00 python app.py
+root        10     0  0 15:03 pts/1    00:00:00 bash
+root       331    10  0 15:04 pts/1    00:00:00 ps -ef
+
+
+E2 --> 
+
+docker run -itd --name e2 -p 33000:80 app_ep:v1 bash --> I passed a cmd (bash) --> cmd that you passed is now an argument to the EP (python app.py)
+
+
+root@8ff72c3189ef:/app# ps -ef
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 15:04 pts/0    00:00:00 python app.py bash
+root        13     0  0 15:08 pts/1    00:00:00 bash
+root       334    13  0 15:08 pts/1    00:00:00 ps -ef
+
+EP --> it cannot be overwritten by the cmd that you pass during container creation
+		cmd that you pass during container creation will act as an argument to the EP

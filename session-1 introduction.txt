@@ -1,0 +1,114 @@
+Notes session-1
+
+apps --> 
+
+server (physical /virtual)
+
+
+physical --> 
+
+- time 
+- cost (TCO --> opex + capex)
+- under utilization 
+
+Virtuals --> 
+
+- reduce cost 
+- time 
+- proper utilization 
+
+Hypervisor --> software that virtualizes the physical hardware and enables us to create VM's on top of a physical hardware 
+
+Type of hypervisor 
+
+Type 1 (real world/ prod world) (good perf..
+- VMware Esxi --> linux kernel 
+- KVM (opensource) --> linux kernel 
+- citrix xen server --> not sure 
+- RHV --> ovirt 
+- Hyper-V -->win kernel  
+
+
+Type 2 (testing env/ non -prod/ dektop/laptops)--> VM perf. is bit slow 
+
+- oracle virtual box (opensource)
+- VMware workstation 
+====================================================================================
+
+
+drawbacks of VM's --> 
+solution to overcome those drawbacks 
+why containarization 
+
+
+
+VM drawbacks --> 
+
+1. License cost (hypervisor + OS+ labor cost)
+2. Optimize time 
+3. OS consuming resource --> optimized cost 
+4. app's are not portable ?? 
+
+=====================================================================================
+
+Solution --> sharing os between multiple app's 
+
+There can be conflicts like --> 
+
+networking conflict 
+file conflict 
+dependency conflict 
+hostname 
+IPC (semaphor/ message queue)
+process id 
+
+Types of Namespaces 
+
+Network 
+Process
+Mount
+UTS (hostname)
+IPC 
+
+Complete solution --> sharing os between multiple app's but those app's should be running ISOLATED
+
+
+Isolation of app's == containarization of app's
+
+Isolation == containarization
+
+container --> isolated env. created on a server in which you are running your app along with it's dependency
+
+isolated env. are created using kernel namespaces 
+
+containarization --> technology of sharing the kernel of the OS with the app's running in isolated env.
+
+
+namespace is a fetaure of kernel that provides us the isolation 
+when I'm saying --> run an app in an isolated env. that mean --> in the backend I'm going to create a kernel namespace in which I'm going to run my app
+
+unshare --> tool to create namespaces 
+docker tool --> create namespaces (tomorrow)
+
+docker tool --> used to create containers 
+
+container = isolated environment --> implemented using kernel namespaces 
+
+
+docker tool creates --> docker container --> which in the backend is implementation of kernel namepaces 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

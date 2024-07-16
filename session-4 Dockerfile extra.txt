@@ -1,0 +1,246 @@
+dockerfile 
+
+build an image 
+tag 
+login 
+push 
+
+
+containerize=dockerize
+
+python app ---> 
+
+python code --> used to create a webpage 
+
+python --> modules (python package) --> Flask 
+
+flask --> python package which is used for creating web servers
+
+flask --> HTML code 
+
+HTML code 
+
+flask --> python package
+yum install flask --> not work
+pip (python installed packages) 
+
+
+deploy this app on a server --> manual approach 
+
+1. create a server having a OS (centos:7, ubuntu:20)
+2. yum install python3 -y 
+3. mkidr /app --> where I will put all my code files
+4. copy all the files in /app --------> app.py and requirements.txt 
+5. pip3 install -r requirements.txt
+6. port 80 on the server is open/free  
+7. python3 app.py --------------> code will be running 
+
+
+ADD --> add the files from your local machine to the container as well from remote location to the container 
+COPY --> add the files from your local machine to the container
+
+dockerfile --> converting the manual approach to docker instrutions 
+
+1. FROM centos:7 
+2. RUN yum install python3 -y --> one time 
+3. WORKDIR /app
+4. ADD . /app
+5. RUN pip3 install -r requirements.txt
+6. EXPOSE 80
+7. CMD ["python3" "app.py"] --> continously executed / process will be running continously 
+
+
+WORKDIR /app --> creating a directory and setting it as the home directory / default dir  
+RUN mkdir /app --> creating a directory 
+
+
+CMD --> ps-1 --> python3 app.py 
+
+
+image --> created 
+
+start container --> "python3" "app.py"] --> exit 
+
+start container --> "python3" "app.py"] --> continously running with the ps python3" "app.py"]
+======================================================================================================
+
+execution --> optimize the dockerfile (reduce the number of instructions) --> python base image 
+
+FROM python:v3slim  --> 50 MB 
+
+WORKDIR /app
+
+ADD . /app
+
+RUN pip3 install -r requirements.txt
+
+EXPOSE 80
+
+CMD ["python3" "app.py"]
+
+
+execution --> 
+
+python image --> os (slim version of OS)
+======================================================================================================
+
+FROM python:3.7-slim
+
+WORKDIR /app
+
+ADD . /app
+
+RUN pip install -r requirements.txt
+
+EXPOSE 80
+
+CMD ["python","app.py"]
+
+==================================================== 
+layer = intermediate image on top of which final image is created 
+
+[root@dockerhost images]# docker build -t myapp:v1 .
+Sending build context to Docker daemon  4.096kB
+
+Step 1/6 : FROM python:3.7-slim
+ ---> a255ffcb469f
+
+Step 2/6 : WORKDIR /app
+ ---> Running in 3a864aefec27
+Removing intermediate container 3a864aefec27
+---> c37eb9e13bb2
+
+Step 3/6 : ADD . /app --------------------------------------->  data +c37eb9e13bb2(directory) = create a new directory (953dea1efe9a)
+ ---> 953dea1efe9a
+
+Step 4/6 : RUN pip install -r requirements.txt
+ ---> Running in b5fff279735c
+Removing intermediate container b5fff279735c
+ ---> 18fcd592a778
+
+Step 5/6 : EXPOSE 80
+ ---> Running in 05fc236a31a7
+Removing intermediate container 05fc236a31a7
+ ---> 1a0149b365b7
+
+Step 6/6 : CMD ["python","app.py"]
+ ---> Running in 392946c34114
+Removing intermediate container 392946c34114
+ ---> 69f840bba15e
+
+Successfully built 69f840bba15e
+Successfully tagged myapp:v1
+===============================================
+docker image history myapp:v1
+
+69f840bba15e
+1a0149b365b7
+18fcd592a778
+953dea1efe9a
+c37eb9e13bb2
+a255ffcb469f
+missing 
+missing 
+missing 
+......
+
+
+
+dockerfile --> 
+
+FROM
+.
+.
+.
+.
+.
+.
+.
+CMD/ENTRYPOINT --> next session 
+
+multistage --> multiple FROM 
+
+
+
+
+FROM golang:1.12.4
+WORKDIR /sample
+COPY sample.go /sample
+RUN GOOS=linux go build -a -installsuffix cgo -o sample /sample/sample.go
+CMD ["./sample"]
+
+
+=================================================================================
+
+
+FROM golang:1.12.4 AS stage1
+WORKDIR /sample
+COPY sample.go /sample
+RUN GOOS=linux go build -a -installsuffix cgo -o compiled-sample /sample/sample.go
+
+FROM alpine:3.9.3
+WORKDIR /root
+COPY --from=stage1 /sample/compiled-sample /root
+CMD ["./compiled-sample"]
+
+
+
+
+
+output of stage 1 --> input for stage 2 and that will be executed in stage 2 
+
+name to stage 1 --> compiler 
+
+
+
+[root@dockerhost singlestage]# docker build -t ss:v1 .
+Sending build context to Docker daemon  3.072kB
+Step 1/5 : FROM golang:1.12.4
+ ---> b860ab44e93e
+Step 2/5 : WORKDIR /sample --> created in Single stage 
+ ---> 90ed3f537fda
+Step 3/5 : COPY sample.go .
+ ---> 6e14f4f189f7
+Step 4/5 : RUN GOOS=linux go build -a -installsuffix cgo -o sample .
+ ---> 4f2241d68f3c
+Step 5/5 : CMD ["./sample"]
+ ---> ad89d9f2e58c
+
+==================================================================================
+[root@dockerhost multistage]# docker build -t ms:v1 .
+Sending build context to Docker daemon  3.072kB
+Step 1/8 : FROM golang:1.12.4 AS compiler
+ ---> b860ab44e93e
+Step 2/8 : WORKDIR /sample
+ ---> Using cache
+ ---> 90ed3f537fda
+Step 3/8 : COPY sample.go .
+ ---> Using cache
+ ---> 6e14f4f189f7
+Step 4/8 : RUN GOOS=linux go build -a -installsuffix cgo -o sample .
+ ---> Using cache
+ ---> 4f2241d68f3c
+
+all new 
+
+Step 5/8 : FROM alpine:3.9.3
+3.9.3: Pulling from library/alpine
+bdf0201b3a05: Pull complete 
+Digest: sha256:28ef97b8686a0b5399129e9b763d5b7e5ff03576aa5580d6f4182a49c5fe1913
+Status: Downloaded newer image for alpine:3.9.3
+ ---> cdf98d1859c1
+Step 6/8 : WORKDIR /root
+ ---> Running in 75d4ee01d6b9
+Removing intermediate container 75d4ee01d6b9
+ ---> 7a330268d308
+Step 7/8 : COPY --from=compiler /sample/sample ./
+ ---> 6eb64ad83fd4
+Step 8/8 : CMD ["./sample"]
+ ---> Running in 73b1b9448843
+Removing intermediate container 73b1b9448843
+ ---> 7e8ba517e477
+Successfully built 7e8ba517e477
+Successfully tagged ms:v1
+
+
+

@@ -1,0 +1,147 @@
+docker --> tool to create containers (isolated env in which you run application along with it's dependencies)
+
+arch --> 3 components 
+
+1. docker client (Command line interface) --> docker cli 
+2. docker deamon (engine/service)
+3. docker registry 
+
+> docker run -itd --name first httpd 
+
+httpd --> application image 
+
+what is an image  ?? 
+whwre is the image stored ??
+how this image is created ?? --> next week (feb 17)
+
+
+container Image --> contains app code, app data, app dependency ....
+Image (read only ) --> execute --> Container is formed 
+
+images are stored on a central location --> container registry 
+
+container registry --> 
+- docker hub
+- google container registry  (gcr)
+- elastic container registry (ecr)
+- azure container registry (Azure)
+- nexus.io (nexus)
+- quay.io (redhat)
+
+
+> docker run -itd --name first httpd  --> docker hub
+
+> docker run -itd --name first registry_url/image_name 
+
+Install --> 
+- privilige to install docker should be sudo (superuser do) or you need superuser (root)
+- privilige for running docker command can be sudo, non-sudo or root 
+
+ sudo su - --> switch to root user 
+
+ yum install -y yum-utils --> package which is used to install the yum-utilities 
+
+ yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo --> used to add the docker repo, repo contains url from whwre the packages will be downloaded and installed 
+
+ yum install -y   containerd.io-1.5.10   docker-ce-20.10.9   docker-ce-cli-20.10.9 --> install the packages 
+
+ systemctl start docker --> starting the docker deamon service 
+
+ systemctl enable docker --> make the service persistent across reboot 
+
+ systemctl status docker --> active (running)
+
+Package managers --> 
+
+redhat /centos --> yum 
+ubuntu --> apt
+windows --> msi 
+mac --> brew  
+
+packages --> 
+
+Containerd --> dependency of docker engine which talks to kernel for createing namespaces 
+docker --> docker engine 
+docker-cli --> docker client 
+
+docker inc. --> aquired by Mirantis in year Nov 2019
+
+yum install -y   containerd.io   docker-ce   docker-ce-cli --> latest docker packages
+=======================================================================================================
+docker commands --> 
+
+
+
+old syntax (introduced by docker inc.)
+
+docker ps -a --> list all the containers
+docker ps --> list only running containers 
+docker stop container_name/container_id
+docker ps -a -q --> to display only container id's
+
+docker start container_name/container_id
+docker restart container_name/container_id
+
+docker rm container_name/container_id
+docker rm -f container_name/container_id
+
+docker run -itd --name third nginx --> deploy container with latest version of nginx
+docker run -itd --name fourth nginx:1.17 --> deploy container with 1.17 version of nginx
+
+docker images --> see the local images on the dockerhost
+
+docker rmi image_name:tag/image_id 
+
+docker inspect image --> details of image
+docker inspect container --> details of container 
+
+docker system prune --> remove all the stopped containers and remove any images which are not refrenced by any container 
+docker pull imagename:tag --> to download a image locally
+
+=======================================================================================================
+
+new syntax (introduced by Mirantis after aquisition)
+
+
+docker container ps -a --> list all the containers
+docker  container  ps --> list only running containers 
+docker  container  stop container_name/container_id
+docker  container  ps -a -q --> to display only container id's
+
+docker container start container_name/container_id
+docker container restart container_name/container_id
+
+docker rm container_name/container_id
+docker rm -f container_name/container_id
+
+docker run -itd --name third nginx --> deploy container with latest version of nginx
+docker run -itd --name fourth nginx:1.17 --> deploy container with 1.17 version of nginx
+
+docker image ls --> see the local images on the dockerhost
+
+docker image rm image_name:tag/image_id
+
+
+=======================================================================================================
+
+
+
+Topics --> Feb 17
+
+docker commands can be execute by a non-privilige (no sudo no root access)
+-itd (interactive, terminal, detach)
+port binding
+ec2 instance on aws and install docker on it 
+restart policy 
+images (docker tag, docker push, docker login, dockerfile, docker build)
+
+
+
+
+
+
+
+
+
+
+

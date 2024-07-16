@@ -1,0 +1,72 @@
+Class 1 --> 
+
+Virtualization
+Containarization
+Containers vs VM's
+why Containers
+Kernel Namespaces
+Architecture of docker
+======================================
+Class 2 --> 
+
+Install docker
+Priviliged and non priviliged mode
+docker container create and delete
+attach mode vs detach mode
+port Publish
+restart policy
+======================================
+Class 3 --> 
+
+Images
+Dockerhub
+Repository
+types of images (official, verified, user)
+docker tag/push/pull
+custom images (dockerfile and docker build)
+======================================
+Class 4 --> 
+
+Entrypoint vs CMD
+Manual approach
+Creating images from containers (docker commit)
+Get images in restricted env. (docker save and load)
+Migrate Containers (docker export/import)
+Layered Architecture of docker images and Copy on Write
+======================================
+Class 5 --> 
+
+Overlay storage driver
+storage (volumes, bind, tmpfs)
+Container/Microservice Communication:
+	Docker compose
+
+======================================
+Class 6 --> 
+
+docker swarm 
+	Introduction to orchestration
+	Arcitecture of Swarm
+	Deploy swarm cluster
+	create services (HA/FT)
+	scale service
+	upgrade/rollback services
+	managing swarm nodes (drain,promote/demote, remove node)
+	replicated/global
+	
+docker stack
+
+======================================
+
+Class 7 --> 
+docker networks
+	default networks (bridge, host and none)
+	custom bridge networks (used by docker compose)
+	swarm networking (cross node container communication, outbound and inbound access)
+======================================
+
+Class 8 --> 
+Introduction to kubernetes
+Architecture
+Deploying a k8s cluster
+

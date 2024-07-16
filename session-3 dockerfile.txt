@@ -1,0 +1,101 @@
+sudo yum install -y yum-utils
+
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+sudo yum install docker-ce docker-ce-cli containerd.io -y 
+
+sudo systemctl start docker
+
+sudo systemctl enable docker --> service should be persistent across reboots 
+
+sudo systemctl status docker
+
+======================================
+
+useradd edureka --> add a user
+su - edureka --> switch to the user 
+---
+root > usermod -G docker edureka  --> modify a user 
+=======================================
+old syntax --> 
+
+ docker ps -a --> all the containers 
+ docker ps --> running containers 
+ docker images --> container images 
+ docker run -it nginx bash --> create and start a container
+ docker stop <container_name or id>
+ docker rm <container_name or id>
+ docker rm -f <container_name or id>
+ docker rmi <image_name/id>
+ docker rm -f $(docker ps -a -q) --> delete  all the containers 
+ 
+new syntax --> 
+   
+   docker container create -it nginx bash
+   docker container start <container_name or id>
+   docker container run -it nginx bash --> create + start
+   docker container ls
+   docker container ls -a 
+   docker image ls 
+   docker image rm <image_id/name>
+   docker container stop <container_name or id>
+   docker container rm <container_name or id>
+   docker container rm <container_name or id> -f 
+   docker system prune -a --> remove stopped container and unused images
+  
+=======================================
+attached mode and detached mode 
+-i --> interactive mode --> STDIN/STDOP to the container
+-t --> terminal on the container 
+-d --> detached mode 
+
+attached mode --> container is occupying the terminal, running in foreground 
+exit or cntrl+d --> come out and container stop
+cntrl+p and cntrl+q --> come out and container is still running, when you are using -it flag 
+
+detached mode --> 
+docker run -itd nginx
+
+=======================================
+
+Important --> #### if you have created dockerhost on any cloud like (AWS, GCP) please make sure to open ports on cloud firewall, let's suppose you expose container on port 32000, then you need to make sure that port 32000 is open on cloud firewall, or you can open a range between 30000-33000 like below 
+
+for GCP ONLY --> run the below command from the cloudshell
+gcloud compute firewall-rules create test-node-port --allow tcp:30000-33000
+
+
+port publish --> during the container creation 
+
+docker inspect <container_name or id> --> check IP of container 
+-p --> static port publishing
+-P --> dynamic port publishing
+
+docker run -itd --name second -p 8081:80 nginx
+docker run -itd --name  third -p 32000:80 httpd 
+
+-P --> docker will bind a dynamic port on the vm to the container port --> 32768-65535
+
+0-65535 --> total port range
+0-1023 --> registered port numbers
+1024-65535 --> unregistered for your containers 
+
+=======================================
+
+images --> 
+
+docker pull centos:7 --> downloading the image locally
+
+Dockerfile --> 
+
+FROM centos:7
+RUN mkdir /edureka1
+RUN touch /file1
+CMD ["bash"]
+
+docker build -t custom-img:v7 . --> executing dockerfile
+
+docker tag custom-img:v7 jsachdev07/custom-img:v7 --> --> creating an alias for an existing image
+
+docker login
+
+docker push jsachdev07/custom-img:v7 --> uploading image
